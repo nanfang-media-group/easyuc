@@ -1,0 +1,28 @@
+{
+    "name": "southcn/easyuc",
+    "require": {
+        "php": ">=7.1.0",
+        "abelhalo/api-proxy": "^1.4",
+        "nanfang-media-group/ticker-timer": "dev-master",
+        "southcn/private-api": "^1.6"
+    },
+    "require-dev": {
+        "orchestra/testbench": "~3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SouthCN\\EasyUC\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SouthCN\\EasyUC\\EasyUCServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}
