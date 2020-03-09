@@ -18,8 +18,8 @@ class UserCenterAPI
 
         Config::set('private-api._', ['return_type' => 'object']);
         Config::set('private-api.easyuc', [
-            'app' => env('UC_APP'),
-            'ticket' => env('UC_TICKET'),
+            'app' => config('easyuc.app'),
+            'ticket' => config('easyuc.ticket'),
 
             'sync-service-area-list' => ['url' => config('easyuc.oauth.base_url') . '/api/private/sync/servicearea/list'],
             'sync-org-list' => ['url' => config('easyuc.oauth.base_url') . '/api/private/sync/org/list'],
