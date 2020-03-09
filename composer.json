@@ -4,11 +4,17 @@
         "php": ">=7.1.0",
         "abelhalo/api-proxy": "^1.4",
         "nanfang-media-group/ticker-timer": "dev-master",
-        "southcn/private-api": "^1.6"
+        "southcn/private-api": "dev-master"
     },
     "require-dev": {
         "orchestra/testbench": "~3.0"
     },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/nanfang-media-group/private-api.git"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "SouthCN\\EasyUC\\": "src/"
