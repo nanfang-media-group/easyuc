@@ -23,7 +23,7 @@ class Repository
         $this->sites        = new SiteList($data->site_list);
         $this->token        = new Token([
             'access' => request('access_token'),
-            'logout' => $data->logout_token,
+            'logout' => $data->logout_token ?? null,
         ]);
     }
 

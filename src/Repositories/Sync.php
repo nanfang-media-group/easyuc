@@ -11,6 +11,8 @@ use SouthCN\EasyUC\Contracts\ShouldSyncUserSites;
 use SouthCN\EasyUC\Repositories\Data\ServiceAreaList;
 use SouthCN\EasyUC\Repositories\Data\SiteList;
 use SouthCN\EasyUC\Repositories\Data\User as UserData;
+use SouthCN\EasyUC\Repository;
+use stdClass;
 
 class Sync
 {
@@ -19,7 +21,7 @@ class Sync
 
     public function __construct()
     {
-        $this->ucAPI       = new UserCenterAPI;
+        $this->ucAPI = new UserCenterAPI;
         $this->userHandler = app('easyuc.user.handler');
     }
 
@@ -89,20 +91,20 @@ class Sync
         }
     }
 
-    protected function helpSyncUserSites(User $user, \stdClass $data): void
+    protected function helpSyncUserSites(User $user, stdClass $data): void
     {
-        $userData = new UserData($data->user);
+        $repository = new Repository($data);
 
-        if ($userData->super()) {
+        if ($repository->user->super()) {
             $this->userHandler->syncUserAppSites($user);
         }
 
-        if ($userData->serviceAreaAdmin()) {
-            $this->userHandler->syncUserServiceAreas($user, new ServiceAreaList($data->service_area_list));
+        if ($repository->user->serviceAreaAdmin()) {
+            $this->userHandler->syncUserServiceAreas($user, $repository);
         }
 
-        if ($userData->normalUser()) {
-            $this->userHandler->syncUserSites($user, new SiteList($data->site_list));
+        if ($repository->user->normalUser()) {
+            $this->userHandler->syncUserSites($user, $repository);
         }
     }
 }
