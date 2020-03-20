@@ -16,11 +16,11 @@ trait HelpSyncUserSites
         }
 
         if ($userData->serviceAreaAdmin()) {
-            $this->syncUserServiceAreas($user, $repository->serviceAreas);
+            $this->syncUserServiceAreas($user, $repository);
         }
 
         if ($userData->normalUser()) {
-            $this->syncUserSites($user, $repository->sites);
+            $this->syncUserSites($user, $repository);
         }
     }
 }
