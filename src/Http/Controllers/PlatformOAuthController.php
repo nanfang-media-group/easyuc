@@ -28,18 +28,15 @@ class PlatformOAuthController extends Controller
      */
     public function login(Request $request)
     {
-        $repository = new Repository(
-            (new UserCenterAPI)->getUserDetail($request->access_token)
-        );
+        $response = (new UserCenterAPI)->getUserDetail($request->access_token);
+        $repository = new Repository($response);
 
         Auth::login($this->syncUser($repository));
 
-        if (!$repository->token->logout) {
-            Log::error('UC_TOKEN_IS_NULL', (array) $repository->data);
-        }
-
-        Service::token()->logout = $repository->token->logout;
-        Cache::forever("token:{$repository->token->logout}:session", Session::getId());
+        // 直接使用响应中的 token，$repository->token->logout 有缓存不更新的问题
+        Service::token()->logout = $response->logout_token;
+        Cache::forever("token:{$response->logout_token}:session", Session::getId());
+        Log::debug('UC_TOKEN_IN_RESPONSE: ' . $response->logout_token);
 
         return redirect(config('easyuc.oauth.redirect_url'));
     }

@@ -18,7 +18,7 @@ class TokenManager
     {
         $this->session = empty($session) ? Session::getId() : $session;
 
-        if (empty($this->$session)) {
+        if (empty($this->session)) {
             throw new Exception('NO SESSION CAN BE USED');
         }
     }
