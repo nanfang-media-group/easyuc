@@ -155,10 +155,14 @@ class UserCenterAPI
      *
      * @throws ApiFailedException
      */
-    public function logout(): void
+    public function logout(string $session = ''): void
     {
-        $url   = config('easyuc.oauth.logout_url');
-        $token = Service::token()->logout;
+        $url = config('easyuc.oauth.logout_url');
+        $token = Service::token($session)->logout;
+
+        if (!$token) {
+            exit('logout token is null');
+        }
 
         // 被动登出情景下，无需再向用户中心通知登出
         if (Service::logoutSignal()->check()) {

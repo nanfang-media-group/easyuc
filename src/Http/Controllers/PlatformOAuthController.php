@@ -6,6 +6,9 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use SouthCN\EasyUC\Exceptions\ApiFailedException;
 use SouthCN\EasyUC\Exceptions\ConfigUndefinedException;
 use SouthCN\EasyUC\Exceptions\UnauthorizedException;
@@ -17,22 +20,26 @@ use SouthCN\EasyUC\Service;
 class PlatformOAuthController extends Controller
 {
     /**
-     * @var Repository
-     */
-    protected $repository;
-
-    /**
      * 处理平台 OAuth 回调，并实现统一登入
      *
      * @throws ApiFailedException
      * @throws UnauthorizedException
      * @throws ConfigUndefinedException
      */
-    public function login()
+    public function login(Request $request)
     {
-        Auth::login($this->syncUser());
+        $repository = new Repository(
+            (new UserCenterAPI)->getUserDetail($request->access_token)
+        );
 
-        Service::token()->logout = $this->repository->token->logout;
+        Auth::login($this->syncUser($repository));
+
+        if (!$repository->token->logout) {
+            Log::error('UC_TOKEN_IS_NULL', (array) $repository->data);
+        }
+
+        Service::token()->logout = $repository->token->logout;
+        Cache::forever("token:{$repository->token->logout}:session", Session::getId());
 
         return redirect(config('easyuc.oauth.redirect_url'));
     }
@@ -54,17 +61,13 @@ class PlatformOAuthController extends Controller
      * @throws UnauthorizedException
      * @throws ConfigUndefinedException
      */
-    protected function syncUser(): Authenticatable
+    protected function syncUser(Repository $repository): Authenticatable
     {
-        $this->repository = new Repository(
-            (new UserCenterAPI)->getUserDetail(request('access_token'))
-        );
-
         $userHandler = app('easyuc.user.handler');
 
         // 需要有 APP 授权才可进入，即使是超管
-        if ($this->repository->authorized()) {
-            return $userHandler($this->repository);
+        if ($repository->authorized()) {
+            return $userHandler($repository);
         }
 
         throw new UnauthorizedException('管理中心未授权此用户');

@@ -3,18 +3,24 @@
 namespace SouthCN\EasyUC\Repositories;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
+use SouthCN\EasyUC\Exceptions\Exception;
 
 /**
  * @property string $logout
  */
 class TokenManager
 {
-    protected $uid;
+    protected $session;
     protected $logout;
 
-    public function __construct(string $uid)
+    public function __construct(string $session = '')
     {
-        $this->uid = $uid;
+        $this->session = empty($session) ? Session::getId() : $session;
+
+        if (empty($this->$session)) {
+            throw new Exception('NO SESSION CAN BE USED');
+        }
     }
 
     public function __set(string $name, string $value): void
@@ -34,6 +40,6 @@ class TokenManager
 
     protected function key(string $name): string
     {
-        return "uc:{$this->uid}:token:$name";
+        return "uc:$this->session:token:$name";
     }
 }
