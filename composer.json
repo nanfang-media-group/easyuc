@@ -2,7 +2,7 @@
     "name": "southcn/easyuc",
     "require": {
         "php": ">=7.1.0",
-        "abelhalo/api-proxy": "^1.4",
+        "abelhalo/api-proxy": "^1.6",
         "nanfang-media-group/ticker-timer": "dev-master",
         "southcn/private-api": "dev-master"
     },

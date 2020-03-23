@@ -4,9 +4,11 @@ namespace SouthCN\EasyUC\Repositories;
 
 use AbelHalo\ApiProxy\ApiProxy;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use SouthCN\EasyUC\Exceptions\ApiFailedException;
 use SouthCN\EasyUC\Service;
 use SouthCN\PrivateApi\PrivateApi;
+use stdClass;
 
 class UserCenterAPI
 {
@@ -15,6 +17,7 @@ class UserCenterAPI
     public function __construct()
     {
         $this->proxy = (new ApiProxy)->returnAsObject();
+        $this->proxy->logger->enable();
 
         Config::set('private-api._', ['return_type' => 'object']);
         Config::set('private-api.easyuc', [
@@ -25,6 +28,12 @@ class UserCenterAPI
             'sync-org-list' => ['url' => config('easyuc.oauth.base_url') . '/api/private/sync/org/list'],
             'sync-site-list' => ['url' => config('easyuc.oauth.base_url') . '/api/private/sync/site/list'],
             'sync-user-list' => ['url' => config('easyuc.oauth.base_url') . '/api/private/sync/user/list'],
+        ]);
+        Config::set('logging.channels.easyuclog', [
+            'driver' => 'daily',
+            'path' => storage_path('logs/easyuc-response.log'),
+            'level' => 'debug',
+            'days' => 7,
         ]);
     }
 
@@ -45,6 +54,8 @@ class UserCenterAPI
             'service_area_ids' => null,
         ]);
 
+        $this->logResponse($response);
+
         if (empty($response->data)) {
             throw new ApiFailedException("调用 $url 接口失败：{$response->errmessage}");
         }
@@ -60,6 +71,8 @@ class UserCenterAPI
     public function getServiceAreaList(): array
     {
         $response = PrivateApi::app('easyuc')->api('sync-service-area-list');
+
+        $this->logResponse($response);
 
         if (empty($response->data)) {
             throw new ApiFailedException("调用 sync-service-area-list 接口失败：{$response->errmessage}");
@@ -78,6 +91,8 @@ class UserCenterAPI
         $response = PrivateApi::app('easyuc')->api('sync-org-list', [
             'service_area_ids' => $serviceAreas,
         ]);
+
+        $this->logResponse($response);
 
         if (empty($response->data)) {
             throw new ApiFailedException("调用 sync-org-list 接口失败：{$response->errmessage}");
@@ -106,6 +121,8 @@ class UserCenterAPI
             'service_area_ids' => $serviceAreas,
         ]);
 
+        $this->logResponse($response);
+
         if (empty($response->data)) {
             throw new ApiFailedException("调用 sync-site-list 接口失败：{$response->errmessage}");
         }
@@ -123,6 +140,8 @@ class UserCenterAPI
         $response = PrivateApi::app('easyuc')->api('sync-user-list', [
             'site_app_id' => config('easyuc.site_app_id'),
         ]);
+
+        $this->logResponse($response);
 
         if (empty($response->data)) {
             throw new ApiFailedException("调用 sync-user-list 接口失败：{$response->errmessage}");
@@ -152,10 +171,17 @@ class UserCenterAPI
             'logout_token' => $token,
         ]);
 
+        $this->logResponse($response);
+
         if (0 !== $response->errcode) {
             throw new ApiFailedException("调用 $url 接口失败：{$response->errmessage}（Token={$token}）");
         }
 
         unset(Service::token()->logout);
+    }
+
+    protected function logResponse(stdClass $response): void
+    {
+        Log::channel('easyuclog')->debug('RESPONSE', json_decode(json_encode($response), true));
     }
 }
