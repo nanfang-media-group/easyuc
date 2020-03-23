@@ -6,9 +6,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
 use SouthCN\EasyUC\Exceptions\ApiFailedException;
 use SouthCN\EasyUC\Exceptions\ConfigUndefinedException;
 use SouthCN\EasyUC\Exceptions\UnauthorizedException;
@@ -35,7 +33,6 @@ class PlatformOAuthController extends Controller
 
         // 直接使用响应中的 token，$repository->token->logout 有缓存不更新的问题
         Service::token()->logout = $response->logout_token;
-        Cache::forever("token:{$response->logout_token}:session", Session::getId());
         Log::debug('UC_TOKEN_IN_RESPONSE: ' . $response->logout_token);
 
         return redirect(config('easyuc.oauth.redirect_url'));
