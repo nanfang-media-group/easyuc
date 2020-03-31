@@ -34,37 +34,23 @@ class Sync
             return;
         }
 
-        ticker_timer_begin('sync.user');
-
-        ticker_timer_begin('sync.user.get_user_list');
         $userList = $this->ucAPI->getUserList();
-        ticker_timer_end('sync.user.get_user_list');
 
-        ticker_timer_begin('sync.user.updating');
         foreach ($userList as $data) {
             $userData   = new UserData($data->user);
             $existing[] = $data->user->id;
 
             // 同步用户信息
-            ticker_timer_begin('sync.user.updating.user');
             $user = $this->userHandler->syncUser($userData);
-            ticker_timer_end('sync.user.updating.user');
 
             // 同时，必须同步用户的站点权限
             if ($this->userHandler instanceof ShouldSyncUserSites) {
-                ticker_timer_begin('sync.user.updating.user_sites');
                 $this->helpSyncUserSites($user, $data);
-                ticker_timer_end('sync.user.updating.user_sites');
             }
         }
-        ticker_timer_end('sync.user.updating');
 
         // 反向删除「存在」以外的用户
-        ticker_timer_begin('sync.user.removing');
         $this->userHandler->removeUsers($existing ?? []);
-        ticker_timer_end('sync.user.removing');
-
-        ticker_timer_end('sync.user');
     }
 
     /**
