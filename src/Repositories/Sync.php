@@ -28,29 +28,31 @@ class Sync
     /**
      * 主动或被动的「同步用户」操作
      */
-    public function users(): void
+    public function users($fullSync = false): void
     {
         if (!($this->userHandler instanceof ShouldSyncUser)) {
             return;
         }
 
-        $userList = $this->ucAPI->getUserList();
+        $bridge = new UserCenterBridge;
+        $processUsers = function (array $userList) {
+            foreach ($userList as $data) {
+                // 同步用户信息
+                $userData = new UserData($data->user);
+                $user = $this->userHandler->syncUser($userData, $data->operation);
 
-        foreach ($userList as $data) {
-            $userData   = new UserData($data->user);
-            $existing[] = $data->user->id;
-
-            // 同步用户信息
-            $user = $this->userHandler->syncUser($userData);
-
-            // 同时，必须同步用户的站点权限
-            if ($this->userHandler instanceof ShouldSyncUserSites) {
-                $this->helpSyncUserSites($user, $data);
+                // 同时，必须同步用户的站点权限
+                if ($user && $this->userHandler instanceof ShouldSyncUserSites) {
+                    $this->helpSyncUserSites($user, $data);
+                }
             }
-        }
+        };
 
-        // 反向删除「存在」以外的用户
-        $this->userHandler->removeUsers($existing ?? []);
+        if ($fullSync) {
+            $bridge->allUsers($processUsers);
+        } else {
+            $bridge->chunkUsers($processUsers);
+        }
     }
 
     /**

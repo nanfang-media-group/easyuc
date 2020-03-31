@@ -10,7 +10,7 @@ class SyncUsersCommand extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'uc:sync-users';
+    protected $signature = 'uc:sync-users {--full}';
 
     /**
      * The console command description.
@@ -22,6 +22,8 @@ class SyncUsersCommand extends Command
      */
     public function handle()
     {
-        Service::sync()->users();
+        Service::sync()->users(
+            $this->option('full')
+        );
     }
 }

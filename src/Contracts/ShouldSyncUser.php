@@ -10,10 +10,5 @@ interface ShouldSyncUser
     /**
      * 主动或被动地，从用户中心同步用户信息
      */
-    public function syncUser(UserData $userData): User;
-
-    /**
-     * 被动地，从用户中心同步删除不再存在的用户
-     */
-    public function removeUsers(array $existingUUIDs): void;
+    public function syncUser(UserData $userData, int $operation): ?User;
 }
