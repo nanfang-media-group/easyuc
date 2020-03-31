@@ -10,7 +10,7 @@ class SyncSitesCommand extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'uc:sync-sites';
+    protected $signature = 'uc:sync-sites {--full}';
 
     /**
      * The console command description.
@@ -22,6 +22,8 @@ class SyncSitesCommand extends Command
      */
     public function handle()
     {
-        Service::sync()->sites();
+        Service::sync()->sites(
+            $this->option('full')
+        );
     }
 }

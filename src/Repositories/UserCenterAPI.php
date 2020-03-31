@@ -25,8 +25,8 @@ class UserCenterAPI
             'ticket' => config('easyuc.ticket'),
 
             'sync-service-area-list' => ['url' => config('easyuc.oauth.base_url') . '/api/private/sync/servicearea/list'],
-            'sync-org-list' => ['url' => config('easyuc.oauth.base_url') . '/api/private/sync/org/list'],
-            'sync-site-list' => ['url' => config('easyuc.oauth.base_url') . '/api/private/sync/site/list'],
+            'sync-org-list' => ['url' => config('easyuc.oauth.base_url') . '/api/private/sync/chunk/org/list'],
+            'sync-site-list' => ['url' => config('easyuc.oauth.base_url') . '/api/private/sync/chunk/site/list'],
             'sync-user-list' => ['url' => config('easyuc.oauth.base_url') . '/api/private/sync/chunk/user/list'],
         ]);
         Config::set('logging.channels.easyuclog', [
@@ -84,12 +84,20 @@ class UserCenterAPI
     /**
      * 用户中心「获取单位列表」接口
      *
+     * @param  string  $type  all 表示全量同步，inc 表示增量同步
+     * @param  string  $period  同步周期
+     * @param  int  $version  起始版本（全量同步或第一次同步时传 0 ）
+     * @param  array|null  $serviceAreas
+     * @return stdClass
      * @throws ApiFailedException
      */
-    public function getOrgList(?array $serviceAreas = null): array
+    public function getOrgList(string $type, string $period, int $version = 0, ?array $serviceAreas = null): stdClass
     {
         $response = PrivateApi::app('easyuc')->api('sync-org-list', [
+            'sync_period_id' => $period,
             'service_area_ids' => $serviceAreas,
+            'sync_option' => $type,
+            'from_version' => $version,
         ]);
 
         $this->logResponse($response);
@@ -98,16 +106,27 @@ class UserCenterAPI
             throw new ApiFailedException("调用 sync-org-list 接口失败：{$response->errmessage}");
         }
 
-        return $response->data->list;
+        return $response->data;
     }
 
     /**
      * 用户中心「获取站点列表」接口
      *
+     * @param  string  $type  all 表示全量同步，inc 表示增量同步
+     * @param  string  $period  同步周期
+     * @param  int  $version  起始版本（全量同步或第一次同步时传 0 ）
+     * @param  int|null  $siteAppId
+     * @param  array|null  $serviceAreas
+     * @return stdClass
      * @throws ApiFailedException
      */
-    public function getSiteList(?int $siteAppId = null, ?array $serviceAreas = null): array
-    {
+    public function getSiteList(
+        string $type,
+        string $period,
+        int $version = 0,
+        ?int $siteAppId = null,
+        ?array $serviceAreas = null
+    ): stdClass {
         if (is_null($siteAppId)) {
             $siteAppId = config('easyuc.site_app_id');
         }
@@ -117,8 +136,11 @@ class UserCenterAPI
         }
 
         $response = PrivateApi::app('easyuc')->api('sync-site-list', [
+            'sync_period_id' => $period,
             'site_app_id' => $siteAppId,
             'service_area_ids' => $serviceAreas,
+            'sync_option' => $type,
+            'from_version' => $version,
         ]);
 
         $this->logResponse($response);
@@ -127,7 +149,7 @@ class UserCenterAPI
             throw new ApiFailedException("调用 sync-site-list 接口失败：{$response->errmessage}");
         }
 
-        return $response->data->list;
+        return $response->data;
     }
 
     /**

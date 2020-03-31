@@ -8,20 +8,18 @@ use SouthCN\EasyUC\Contracts\ShouldSyncServiceAreas;
 use SouthCN\EasyUC\Contracts\ShouldSyncSites;
 use SouthCN\EasyUC\Contracts\ShouldSyncUser;
 use SouthCN\EasyUC\Contracts\ShouldSyncUserSites;
-use SouthCN\EasyUC\Repositories\Data\ServiceAreaList;
-use SouthCN\EasyUC\Repositories\Data\SiteList;
 use SouthCN\EasyUC\Repositories\Data\User as UserData;
 use SouthCN\EasyUC\Repository;
 use stdClass;
 
 class Sync
 {
-    protected $ucAPI;
+    protected $bridge;
     protected $userHandler;
 
     public function __construct()
     {
-        $this->ucAPI = new UserCenterAPI;
+        $this->bridge = new UserCenterBridge;
         $this->userHandler = app('easyuc.user.handler');
     }
 
@@ -34,7 +32,6 @@ class Sync
             return;
         }
 
-        $bridge = new UserCenterBridge;
         $processUsers = function (array $userList) {
             foreach ($userList as $data) {
                 // 同步用户信息
@@ -49,33 +46,37 @@ class Sync
         };
 
         if ($fullSync) {
-            $bridge->allUsers($processUsers);
+            $this->bridge->allUsers($processUsers);
         } else {
-            $bridge->chunkUsers($processUsers);
+            $this->bridge->chunkUsers($processUsers);
         }
     }
 
     /**
      * 主动或被动的「同步站点」操作
      */
-    public function sites(): void
+    public function sites($fullSync = false): void
     {
         if ($this->userHandler instanceof ShouldSyncServiceAreas) {
             $this->userHandler->syncServiceAreas(
-                new ServiceAreaList($this->ucAPI->getServiceAreaList())
+                $this->bridge->api->getServiceAreaList()
             );
         }
 
         if ($this->userHandler instanceof ShouldSyncOrgs) {
-            $this->userHandler->syncOrgs(
-                $this->ucAPI->getOrgList()
-            );
+            if ($fullSync) {
+                $this->bridge->allOrgs([$this->userHandler, 'syncOrgs']);
+            } else {
+                $this->bridge->chunkOrgs([$this->userHandler, 'syncOrgs']);
+            }
         }
 
         if ($this->userHandler instanceof ShouldSyncSites) {
-            $this->userHandler->syncSites(
-                new SiteList($this->ucAPI->getSiteList())
-            );
+            if ($fullSync) {
+                $this->bridge->allSites([$this->userHandler, 'syncSites']);
+            } else {
+                $this->bridge->chunkSites([$this->userHandler, 'syncSites']);
+            }
         }
     }
 
