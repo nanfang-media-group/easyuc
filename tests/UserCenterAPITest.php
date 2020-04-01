@@ -4,7 +4,7 @@ namespace SouthCN\EasyUC\Tests;
 
 use SouthCN\EasyUC\Repositories\UserCenterAPI;
 
-class UserCenterApiTest extends TestCase
+class UserCenterAPITest extends TestCase
 {
     protected $api;
 
