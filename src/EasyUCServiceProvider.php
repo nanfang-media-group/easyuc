@@ -39,12 +39,11 @@ class EasyUCServiceProvider extends \Illuminate\Support\ServiceProvider
             'easyuc.app' => 'UC_APP',
             'easyuc.ticket' => 'UC_TICKET',
             'easyuc.site_app_id' => 'UC_SITE_APP_ID',
-            'easyuc.route.logout' => 'UC_ROUTE_LOGOUT',
             'easyuc.oauth.ip' => 'UC_OAUTH_TRUSTED_IP',
-            'easyuc.oauth.base_url' => 'UC_BASE_URL',
-        ])->each(function (string $env, string $config) {
-            if (!config($config)) {
-                throw new ConfigUndefinedException("请配置$env");
+            'easyuc.oauth.base_url' => 'UC_OAUTH_BASE_URL',
+        ])->each(function (string $env, string $key) {
+            if (!config($key)) {
+                throw new ConfigUndefinedException("请配置 $env");
             }
         });
     }
