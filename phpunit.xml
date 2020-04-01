@@ -25,5 +25,10 @@
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_KEY" value="base64:yk+bUVuZa1p86Dqjk9OjVK2R1pm6XHxC6xEKFq8utH0="/>
+        <env name="UC_APP" value="记得配置"/>
+        <env name="UC_TICKET" value="记得配置"/>
+        <env name="UC_SITE_APP_ID" value="记得配置"/>
+        <env name="UC_OAUTH_TRUSTED_IP" value="记得配置"/>
+        <env name="UC_OAUTH_BASE_URL" value="记得配置"/>
     </php>
 </phpunit>
