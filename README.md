@@ -67,3 +67,59 @@ $api->getUserList(); // 获取用户信息列表
 $api->logout(); // 统一登出
 ```
 
+
+
+## 数据同步
+
+Easy UC 对用户中心的全量同步和增量同步流程做了封装，自动处理数据版本号、数据分块、会话处理等烦恼。
+
+假设已有 UserCenterUserHandler 类，进行同步流程中的回调操作：
+
+```php
+use App\Repositories\UserCenterUserHandler;
+
+app()->bind('easyuc.user.handler', UserCenterUserHandler::class);
+```
+
+UserCenterUserHandler 根据需要实现以下在 SouthCN\EasyUC\Contracts 命名空间下的接口：
+
+| 接口 | 作用 |
+| ---- | ---- |
+| ShouldSyncUser     | 声明需要同步用户列表 |
+| ShouldSyncUserSites     |   声明需要为用户同步站点权限   |
+| ShouldSyncServiceAreas     |   声明需要同步服务区列表   |
+| ShouldSyncOrgs     |   声明需要同步机构列表   |
+| ShouldSyncSites     |   声明需要同步站点列表   |
+
+绑定 easyuc.user.handler 之后即可开始同步操作：
+
+```php
+use SouthCN\EasyUC\Repositories\Sync;
+
+$sync = new Sync;
+
+$sync->sites(true); // 全量同步用户
+$sync->sites(false); // 增量同步用户
+
+$sync->users(true); // 全量同步服务区、机构、站点
+$sync->users(false); // 增量同步服务区、机构、站点
+```
+
+
+
+## 贡献代码
+
+### 单元测试
+
+Easy UC 覆盖了单元测试，如需进行单元测试，务必在 phpunit.xml 中配置 env：
+
+```xml
+<php>
+    <env name="UC_APP" value="记得配置"/>
+    <env name="UC_TICKET" value="记得配置"/>
+    <env name="UC_SITE_APP_ID" value="记得配置"/>
+    <env name="UC_OAUTH_TRUSTED_IP" value="记得配置"/>
+    <env name="UC_OAUTH_BASE_URL" value="记得配置"/>
+</php>
+```
+
