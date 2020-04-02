@@ -71,6 +71,8 @@ $api->logout(); // 统一登出
 
 ## 数据同步
 
+### 以编程方式调用
+
 Easy UC 对用户中心的全量同步和增量同步流程做了封装，自动处理数据版本号、数据分块、会话处理等烦恼。
 
 假设已有 UserCenterUserHandler 类，进行同步流程中的回调操作：
@@ -107,7 +109,59 @@ $sync->users(false); // 增量同步服务区、机构、站点
 
 
 
-## 贡献代码
+### 通过命令行调用
+
+Easy UC 会自动注册 Artisan 命令到 Laravel，可直接通过命令行进行数据同步：
+
+```bash
+# 同步站点列表
+php artisan uc:sync-sites # 增量同步（默认）
+php artisan uc:sync-sites --full # 全量同步
+
+# 同步用户列表
+php artisan uc:sync-users # 增量同步（默认）
+php artisan uc:sync-users --full # 全量同步
+```
+
+
+
+### 通过定时任务调用
+
+通过 Laravel 任务调度功能定时调用同步命令：
+
+```php
+// app/Console/Kernel.php
+
+protected function schedule(Schedule $schedule)
+{
+    // 定时同步服务区、机构、站点列表
+    $schedule->command('uc:sync-sites')
+             ->hourly()
+             ->withoutOverlapping()
+             ->runInBackground();
+
+    // 定时同步用户列表
+    $schedule->command('uc:sync-users')
+             ->hourly()
+             ->withoutOverlapping()
+             ->runInBackground();
+}
+```
+
+
+
+### 通过用户中心调用
+
+用户可能会在用户中心手动触发数据同步，因此需要对外暴露 2 条路由分别用于「服务区、机构、站点同步」和「用户同步」。在 Laravel 启动的时候，Easy UC 会自动注册路由，并处理好剩下的事情。
+
+| 用户中心配置        | Easy UC 路由   | 用途                   |
+| ------------------- | -------------- | ---------------------- |
+| sync_user_url       | /uc/sync-user  | 用户同步               |
+| sync_org_struct_url | /uc/sync-sites | 服务区、机构、站点同步 |
+
+
+
+## 贡献导引
 
 ### 单元测试
 
