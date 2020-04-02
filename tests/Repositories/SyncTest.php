@@ -1,6 +1,6 @@
 <?php
 
-namespace SouthCN\EasyUC\Tests;
+namespace SouthCN\EasyUC\Tests\Repositories;
 
 use Illuminate\Foundation\Auth\User;
 use SouthCN\EasyUC\Contracts\ShouldSyncOrgs;
@@ -11,6 +11,7 @@ use SouthCN\EasyUC\Contracts\ShouldSyncUserSites;
 use SouthCN\EasyUC\Repositories\Data\User as UserData;
 use SouthCN\EasyUC\Repositories\Sync;
 use SouthCN\EasyUC\Repository;
+use SouthCN\EasyUC\Tests\TestCase;
 
 class SyncTest extends TestCase implements ShouldSyncUser, ShouldSyncUserSites, ShouldSyncServiceAreas, ShouldSyncOrgs, ShouldSyncSites
 {
@@ -21,7 +22,6 @@ class SyncTest extends TestCase implements ShouldSyncUser, ShouldSyncUserSites, 
         parent::setUp();
 
         app()->instance('easyuc.user.handler', $this);
-        app()->bind('easyuc.user.handler', UserCenterUserHandler::class);
 
         $this->sync = new Sync;
     }

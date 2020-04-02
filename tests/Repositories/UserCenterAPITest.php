@@ -1,8 +1,9 @@
 <?php
 
-namespace SouthCN\EasyUC\Tests;
+namespace SouthCN\EasyUC\Tests\Repositories;
 
 use SouthCN\EasyUC\Repositories\UserCenterAPI;
+use SouthCN\EasyUC\Tests\TestCase;
 
 class UserCenterAPITest extends TestCase
 {

@@ -46,7 +46,7 @@ composer require southcn/easyuc:dev-master
 php artisan vendor:publish --provider="SouthCN\EasyUC\EasyUCServiceProvider"
 ```
 
-在 Laravel 框架启动阶段，为避免人为失误，Easy UC 会对配置完整性进行自检，如有未配置的必要项，将直接抛出异常。部分配置片段默认已被注释，如需使用被注释的功能，去除注释即可。
+在 Laravel 框架启动阶段，为避免人为失误，Easy UC 会对配置完整性进行自检，**如有未配置的必要项，将直接抛出异常。**部分配置片段默认已被注释，如需使用被注释的功能，去除注释即可。
 
 
 
