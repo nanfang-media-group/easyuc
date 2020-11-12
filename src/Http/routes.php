@@ -11,7 +11,7 @@ Route::prefix(config('easyuc.route.prefix'))->group(function () {
 
         // 统一登出
         Route::middleware(TrustUserCenterIP::class)
-             ->any('uc/logout', 'SouthCN\EasyUC\Http\Controllers\PlatformOAuthController@logout');
+             ->match(['get', 'post'], 'uc/logout', 'SouthCN\EasyUC\Http\Controllers\PlatformOAuthController@logout');
 
         // 被动同步用户
         Route::middleware(TrustUserCenterIP::class)
