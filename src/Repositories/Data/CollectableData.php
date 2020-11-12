@@ -2,6 +2,7 @@
 
 namespace SouthCN\EasyUC\Repositories\Data;
 
+use Illuminate\Support\Arr;
 use stdClass;
 
 abstract class CollectableData
@@ -25,7 +26,7 @@ abstract class CollectableData
 
     public function ids(): array
     {
-        return array_pluck($this->data, 'id');
+        return Arr::pluck($this->data, 'id');
     }
 
     public function isNotEmpty(): bool
